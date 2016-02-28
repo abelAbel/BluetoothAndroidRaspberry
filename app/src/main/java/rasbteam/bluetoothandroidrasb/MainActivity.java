@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.SyncStateContract;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -16,11 +17,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
@@ -47,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                     // Device does not support Bluetooth
                     Toast.makeText(getApplicationContext(), "Your device does not support Bluetooth", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Your device does not support Bluetooth");
-                }else{
+                } else {
                     Toast.makeText(getApplicationContext(), "Your device support Bluetooth", Toast.LENGTH_SHORT).show();
                     Log.d(TAG, "Your device support Bluetooth");
                     //        Turn on Bluetooth if disabled
@@ -58,17 +61,11 @@ public class MainActivity extends AppCompatActivity {
                         startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
                         //or just do this, which does not prompt user to enable the bluetooth it just enables it in the background -> mBluetoothAdapter.enable();
                         Log.d(TAG, "Successfully enabled Bluetooth");
-                    }else{
+                    } else {
                         Log.d(TAG, "Bluetooth is already enabled");
                         Toast.makeText(getApplicationContext(), "Bluetooth is already enabled", Toast.LENGTH_SHORT).show();
                     }
                 }
-
-
-
-
-
-
 
 
             }
@@ -93,7 +90,8 @@ public class MainActivity extends AppCompatActivity {
                                 mArrayAdapter.add(device);
                                 Log.d(TAG, "Size: "+ mArrayAdapter.size());
                             }
-                    if(device.getAddress().equals("FC:F8:AE:36:F4:42")){
+                    if(device.getAddress().equals("AC:D1:B8:E1:54:E0")){
+//                    if(device.getAddress().equals("FC:F8:AE:36:F4:42")){
                         mArrayAdapter.add(device);
                         dev1= device;
                     }
@@ -121,6 +119,23 @@ public class MainActivity extends AppCompatActivity {
     public void connecting(View view) {
         new ConnectThread(dev1).start();
     }
+//               public static final Handler mHandler = new Handler() {
+//                @Override
+//                public void handleMessage(Message msg) {
+//                    byte[] writeBuf = (byte[]) msg.obj;
+//                    int begin = (int)msg.arg1;
+//                    int end = (int)msg.arg2;
+//                    switch(msg.what) {
+//                        case 1:
+//                            String writeMessage = new String(writeBuf);
+//                            writeMessage = writeMessage.substring(begin, end);
+//                            Log.d(TAG,"S:"+writeMessage+"");
+//
+//                            break;
+//                    }
+//
+//                }
+//            };
 
     private class ConnectThread extends Thread {
         private final BluetoothSocket mmSocket;
@@ -188,43 +203,34 @@ public class MainActivity extends AppCompatActivity {
                 mmOutStream = tmpOut;
             }
 
-//            Handler mHandler = new Handler() {
-//                @Override
-//                public void handleMessage(Message msg) {
-//                    byte[] writeBuf = (byte[]) msg.obj;
-//                    int begin = (int)msg.arg1;
-//                    int end = (int)msg.arg2;
-//                    switch(msg.what) {
-//                        case 1:
-//                            String writeMessage = new String(writeBuf);
-//                            writeMessage = writeMessage.substring(begin, end);
-//                            break;
-//                    }
-//
-//                }
-//            };
+
 
 
 
             public void run() {
                 byte[] buffer = new byte[1024];  // buffer store for the stream
-                int bytes; // bytes returned from read()
+//                int bytes; // bytes returned from read()
                 final int MESSAGE_READ =1;
                 // Keep listening to the InputStream until an exception occurs
 //                while (true) {
-//                    try {
-//                        // Read from the InputStream
+                    try {
+                        write("1".getBytes());
+                        // Read from the InputStream
 //                        bytes = mmInStream.read(buffer);
 //                        // Send the obtained bytes to the UI activity
-//                        mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer)
-//                                .sendToTarget();
-                        byte [] b = new byte[1];
-                        b[0]= (byte) 0XFF;
-                        write(b);
-//                        write("1".getBytes());
-//                    } catch (IOException e) {
-//                        break;
-//                    }
+//                        mHandler.obtainMessage(MESSAGE_READ, bytes, -1, buffer).sendToTarget();
+                        Log.d(TAG, "getting inputstream.....");
+                        int read = -1;
+//                        byte[] bytes = new byte[2048];
+                        byte[] bytes = new byte[256];
+                        ByteArrayOutputStream baos = new ByteArrayOutputStream(bytes.length);
+                        read = mmInStream.read(bytes);
+                        baos.write(bytes, 0, read);
+                        byte[] req = baos.toByteArray();
+                        Log.d(TAG, "read:" + new String(req));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
 //                }
             }
 
