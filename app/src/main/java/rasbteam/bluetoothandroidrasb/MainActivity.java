@@ -27,7 +27,7 @@ import java.util.Arrays;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "BluetoothLog";
+    private static final String TAG = "BluetoothLog";//To isolate
     ArrayList<BluetoothDevice> mArrayAdapter = new ArrayList<>();
     BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     BluetoothDevice dev1  ;
